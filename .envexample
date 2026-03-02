@@ -1,0 +1,7 @@
+PORT=
+DB_SERVER=
+DB_NAME=
+DB_USER=
+DB_PASS=
+
+SOURCE_BASE=https://sabbath-school.adventech.io/api/v2
