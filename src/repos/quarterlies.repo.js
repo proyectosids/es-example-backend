@@ -43,3 +43,23 @@ export async function getQuarterly(lang, quarterlyId) {
         .query(`SELECT * FROM dbo.Quarterlies WHERE Lang=@Lang AND QuarterlyId=@QuarterlyId`);
     return res.recordset[0] || null;
 }
+
+export async function getCurrentOrLatestQuarterlyId(lang = "es") {
+    const pool = await getPool();
+    const res = await pool.request()
+        .input("Lang", sql.NVarChar(10), lang)
+        .query(`
+      SELECT TOP 1 QuarterlyId
+      FROM dbo.Quarterlies
+      WHERE Lang=@Lang
+      ORDER BY
+        CASE
+          WHEN StartDate IS NOT NULL AND EndDate IS NOT NULL
+           AND CAST(SYSUTCDATETIME() AS DATE) BETWEEN StartDate AND EndDate THEN 0
+          ELSE 1
+        END,
+        StartDate DESC,
+        QuarterlyId DESC
+    `);
+    return res.recordset[0]?.QuarterlyId || null;
+}
